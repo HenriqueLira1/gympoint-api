@@ -5,6 +5,9 @@ import Registration from '../models/Registration';
 import Plan from '../models/Plan';
 import Student from '../models/Student';
 
+import WelcomeMail from '../jobs/WelcomeMail';
+import Queue from '../../lib/Queue';
+
 class RegistrationController {
     async index(req, res) {
         const { page = 1 } = req.query;
@@ -139,6 +142,13 @@ class RegistrationController {
         }
 
         const { end_date, price } = await Registration.create(req.body);
+
+        await Queue.add(WelcomeMail.key, {
+            plan_id,
+            student_id,
+            end_date,
+            price,
+        });
 
         return res.json({ start_date, end_date, price });
     }
