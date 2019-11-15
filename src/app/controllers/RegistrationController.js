@@ -31,7 +31,71 @@ class RegistrationController {
         return res.json(registrations);
     }
 
-    async create(req, res) {
+    async update(req, res) {
+        const schema = Yup.object().shape({
+            student_id: Yup.number(),
+            plan_id: Yup.number(),
+            start_date: Yup.date(),
+        });
+
+        if (!(await schema.isValid(req.body))) {
+            return res.status(400).json({ error: 'Validation fails' });
+        }
+
+        const { id } = req.params;
+
+        /**
+         * Check if registration id is valid
+         */
+        const registration = await Registration.findByPk(id);
+
+        if (!registration) {
+            return res.status(400).json({ error: 'Registration not found' });
+        }
+
+        const { student_id, plan_id, start_date } = req.body;
+
+        /**
+         * Check if plan is valid
+         */
+        if (plan_id) {
+            const checkPlan = await Plan.findByPk(plan_id);
+
+            if (!checkPlan) {
+                return res.status(400).json({ error: 'Plan not found' });
+            }
+        }
+
+        /**
+         * Check if student is valid
+         */
+        if (student_id) {
+            const checkStudent = await Student.findByPk(student_id);
+
+            if (!checkStudent) {
+                return res.status(400).json({ error: 'Student not found' });
+            }
+        }
+
+        /**
+         * Check for past dates
+         */
+        if (start_date) {
+            const formatedStartDate = parseISO(start_date);
+
+            if (isBefore(formatedStartDate, new Date())) {
+                return res
+                    .status(400)
+                    .json({ error: 'Past dates are not allowed' });
+            }
+        }
+
+        const { end_date, price } = await registration.update(req.body);
+
+        return res.json({ id, start_date, end_date, price });
+    }
+
+    async store(req, res) {
         const schema = Yup.object().shape({
             student_id: Yup.number().required(),
             plan_id: Yup.number().required(),

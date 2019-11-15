@@ -16,7 +16,7 @@ class Registration extends Model {
         );
 
         this.addHook('beforeSave', async registration => {
-            if (!registration.end_date) {
+            if (registration.start_date) {
                 const { duration } = await Plan.findByPk(registration.plan_id);
 
                 registration.end_date = addMonths(
@@ -25,7 +25,7 @@ class Registration extends Model {
                 );
             }
 
-            if (!registration.price) {
+            if (registration.plan_id) {
                 const { price, duration } = await Plan.findByPk(
                     registration.plan_id
                 );
