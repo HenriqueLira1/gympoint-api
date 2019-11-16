@@ -17,6 +17,10 @@ class Student extends Model {
 
         return this;
     }
+
+    static associate(models) {
+        this.hasMany(models.Checkin, { as: 'checkins' });
+    }
 }
 
 export default Student;

@@ -39,7 +39,7 @@ class Mail {
 
     sendMail(message) {
         return this.transporter.sendMail({
-            ...mailConfig,
+            ...mailConfig.default,
             ...message,
         });
     }
