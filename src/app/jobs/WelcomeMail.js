@@ -12,14 +12,14 @@ class WelcomeMail {
         const { plan_id, student_id, end_date, price } = data;
 
         const plan = await Plan.findByPk(plan_id);
-        const student = await Student.findByPk(student_id);
+        const { name, email } = await Student.findByPk(student_id);
 
         await Mail.sendMail({
-            to: `${student.name} <${student.email}>`,
+            to: `${name} <${email}>`,
             subject: 'Seja bem vindo!',
             template: 'welcome',
             context: {
-                student: student.name,
+                name,
                 plan: plan.title,
                 end_date: format(parseISO(end_date), 'dd/MM/yyyy'),
                 price,

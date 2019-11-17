@@ -7,15 +7,20 @@ import Checkin from '../models/Checkin';
 
 class CheckinController {
     async index(req, res) {
-        const checkins = await Student.findByPk(req.params.id, {
-            attributes: ['id', 'name'],
-            include: [
-                {
-                    model: Checkin,
-                    as: 'checkins',
-                    attributes: ['id', 'created_at'],
-                },
-            ],
+        const { id: student_id } = req.params;
+
+        /**
+         * Check if student exists
+         */
+        const student = await Student.findByPk(student_id);
+
+        if (!student) {
+            return res.status(400).json({ error: 'Student not found' });
+        }
+
+        const checkins = await Checkin.findAll({
+            where: { student_id },
+            attributes: ['id', 'created_at'],
         });
 
         return res.json(checkins);
